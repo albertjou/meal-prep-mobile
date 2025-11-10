@@ -36,6 +36,8 @@ paths:
                         type: string
                       color:
                         type: string
+                  refresh_token:
+                    type: string
         '401':
           description: invalid credentials
           content:
@@ -97,6 +99,66 @@ paths:
                 properties:
                   message:
                     type: string
+  "/auth/refresh":
+    post:
+      summary: Refresh access token
+      tags:
+      - Authentication
+      description: Refreshes the JWT access token using a refresh token. Returns a
+        new access token and refresh token.
+      parameters: []
+      responses:
+        '200':
+          description: token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      name:
+                        type: string
+                      color:
+                        type: string
+                  refresh_token:
+                    type: string
+        '400':
+          description: bad request - refresh token missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: unauthorized - invalid refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: abc123def456...
+              required:
+              - refresh_token
   "/meal_plan_participants":
     get:
       summary: Retrieves all meal plan participants
