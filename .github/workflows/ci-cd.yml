@@ -18,14 +18,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup Node.js and Install Dependencies
+        uses: ./.github/actions/setup-node
 
       - name: Run linter
         run: npm run lint
@@ -46,17 +40,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js and Install Dependencies
+        uses: ./.github/actions/setup-node
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
         with:
-          node-version: '20'
-          cache: 'npm'
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          packager: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Publish to Expo.dev
-        run: |
-          npx eas-cli@latest update --branch main --message "Update from GitHub Actions - ${{ github.sha }}"
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Create EAS Update
+        run: eas update --auto --non-interactive
