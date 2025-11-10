@@ -1,0 +1,868 @@
+---
+openapi: 3.0.1
+info:
+  title: Meal Planning API
+  version: v1
+  description: A social meal planning application API for managing users, meal plans,
+    meals, and participants.
+  contact:
+    name: API Support
+paths:
+  "/meal_plan_participants":
+    get:
+      summary: Retrieves all meal plan participants
+      tags:
+      - Meal Plan Participants
+      description: Returns a list of all meal plan participants in the system
+      responses:
+        '200':
+          description: meal plan participants found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    access_level:
+                      type: string
+                      enum:
+                      - viewer
+                      - admin
+                    user_id:
+                      type: integer
+                    meal_plan_id:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: datetime
+                    updated_at:
+                      type: string
+                      format: datetime
+                  required:
+                  - id
+                  - access_level
+                  - user_id
+                  - meal_plan_id
+    post:
+      summary: Creates a meal plan participant
+      tags:
+      - Meal Plan Participants
+      description: Creates a new meal plan participant in the system
+      parameters: []
+      responses:
+        '201':
+          description: meal plan participant created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  access_level:
+                    type: string
+                  user_id:
+                    type: integer
+                  meal_plan_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '422':
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal_plan_participant:
+                  type: object
+                  properties:
+                    access_level:
+                      type: string
+                      enum:
+                      - viewer
+                      - admin
+                      example: viewer
+                    user_id:
+                      type: integer
+                      example: 1
+                    meal_plan_id:
+                      type: integer
+                      example: 1
+                  required:
+                  - access_level
+                  - user_id
+                  - meal_plan_id
+              required:
+              - meal_plan_participant
+  "/meal_plan_participants/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: Meal Plan Participant ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Retrieves a meal plan participant
+      tags:
+      - Meal Plan Participants
+      description: Returns a specific meal plan participant by ID
+      responses:
+        '200':
+          description: meal plan participant found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  access_level:
+                    type: string
+                  user_id:
+                    type: integer
+                  meal_plan_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: meal plan participant not found
+    patch:
+      summary: Updates a meal plan participant
+      tags:
+      - Meal Plan Participants
+      description: Updates an existing meal plan participant
+      parameters: []
+      responses:
+        '200':
+          description: meal plan participant updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  access_level:
+                    type: string
+                  user_id:
+                    type: integer
+                  meal_plan_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: meal plan participant not found
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal_plan_participant:
+                  type: object
+                  properties:
+                    access_level:
+                      type: string
+                      enum:
+                      - viewer
+                      - admin
+                    user_id:
+                      type: integer
+                    meal_plan_id:
+                      type: integer
+              required:
+              - meal_plan_participant
+    delete:
+      summary: Deletes a meal plan participant
+      tags:
+      - Meal Plan Participants
+      description: Deletes an existing meal plan participant
+      responses:
+        '204':
+          description: meal plan participant deleted
+        '404':
+          description: meal plan participant not found
+  "/meal_plans":
+    get:
+      summary: Retrieves all meal plans
+      tags:
+      - Meal Plans
+      description: Returns a list of all meal plans in the system
+      responses:
+        '200':
+          description: meal plans found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    start_date:
+                      type: string
+                      format: date
+                    end_date:
+                      type: string
+                      format: date
+                    owner_id:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: datetime
+                    updated_at:
+                      type: string
+                      format: datetime
+                  required:
+                  - id
+                  - title
+                  - owner_id
+                  - start_date
+                  - end_date
+    post:
+      summary: Creates a meal plan
+      tags:
+      - Meal Plans
+      description: Creates a new meal plan in the system
+      parameters: []
+      responses:
+        '201':
+          description: meal plan created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  start_date:
+                    type: string
+                    format: date
+                  end_date:
+                    type: string
+                    format: date
+                  owner_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '422':
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal_plan:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: Weekly Meal Plan
+                    description:
+                      type: string
+                      example: Our family meal plan for this week
+                    start_date:
+                      type: string
+                      format: date
+                      example: '2024-01-01'
+                    end_date:
+                      type: string
+                      format: date
+                      example: '2024-01-07'
+                    owner_id:
+                      type: integer
+                      example: 1
+                  required:
+                  - title
+                  - owner_id
+                  - start_date
+                  - end_date
+              required:
+              - meal_plan
+  "/meal_plans/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: Meal Plan ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Retrieves a meal plan
+      tags:
+      - Meal Plans
+      description: Returns a specific meal plan by ID
+      responses:
+        '200':
+          description: meal plan found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  start_date:
+                    type: string
+                    format: date
+                  end_date:
+                    type: string
+                    format: date
+                  owner_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: meal plan not found
+    patch:
+      summary: Updates a meal plan
+      tags:
+      - Meal Plans
+      description: Updates an existing meal plan
+      parameters: []
+      responses:
+        '200':
+          description: meal plan updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  start_date:
+                    type: string
+                    format: date
+                  end_date:
+                    type: string
+                    format: date
+                  owner_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: meal plan not found
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal_plan:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    start_date:
+                      type: string
+                      format: date
+                    end_date:
+                      type: string
+                      format: date
+                    owner_id:
+                      type: integer
+              required:
+              - meal_plan
+    delete:
+      summary: Deletes a meal plan
+      tags:
+      - Meal Plans
+      description: Deletes an existing meal plan
+      responses:
+        '204':
+          description: meal plan deleted
+        '404':
+          description: meal plan not found
+  "/meals":
+    get:
+      summary: Retrieves all meals
+      tags:
+      - Meals
+      description: Returns a list of all meals in the system
+      responses:
+        '200':
+          description: meals found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    date:
+                      type: string
+                      format: date
+                    not_eating_users:
+                      type: array
+                    meal_plan_id:
+                      type: integer
+                    chef_id:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: datetime
+                    updated_at:
+                      type: string
+                      format: datetime
+                  required:
+                  - id
+                  - title
+                  - meal_plan_id
+                  - chef_id
+    post:
+      summary: Creates a meal
+      tags:
+      - Meals
+      description: Creates a new meal in the system
+      parameters: []
+      responses:
+        '201':
+          description: meal created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  date:
+                    type: string
+                    format: date
+                  not_eating_users:
+                    type: array
+                  meal_plan_id:
+                    type: integer
+                  chef_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '422':
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: Spaghetti Bolognese
+                    date:
+                      type: string
+                      format: date
+                      example: '2024-01-01'
+                    not_eating_users:
+                      type: array
+                      example: []
+                    meal_plan_id:
+                      type: integer
+                      example: 1
+                    chef_id:
+                      type: integer
+                      example: 1
+                  required:
+                  - title
+                  - meal_plan_id
+                  - chef_id
+              required:
+              - meal
+  "/meals/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: Meal ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Retrieves a meal
+      tags:
+      - Meals
+      description: Returns a specific meal by ID
+      responses:
+        '200':
+          description: meal found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  date:
+                    type: string
+                    format: date
+                  not_eating_users:
+                    type: array
+                  meal_plan_id:
+                    type: integer
+                  chef_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: meal not found
+    patch:
+      summary: Updates a meal
+      tags:
+      - Meals
+      description: Updates an existing meal
+      parameters: []
+      responses:
+        '200':
+          description: meal updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  date:
+                    type: string
+                    format: date
+                  not_eating_users:
+                    type: array
+                  meal_plan_id:
+                    type: integer
+                  chef_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: meal not found
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meal:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    date:
+                      type: string
+                      format: date
+                    not_eating_users:
+                      type: array
+                    meal_plan_id:
+                      type: integer
+                    chef_id:
+                      type: integer
+              required:
+              - meal
+    delete:
+      summary: Deletes a meal
+      tags:
+      - Meals
+      description: Deletes an existing meal
+      responses:
+        '204':
+          description: meal deleted
+        '404':
+          description: meal not found
+  "/users":
+    get:
+      summary: Retrieves all users
+      tags:
+      - Users
+      description: Returns a list of all users in the system
+      responses:
+        '200':
+          description: users found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    email:
+                      type: string
+                    name:
+                      type: string
+                    color:
+                      type: string
+                    token:
+                      type: string
+                    created_at:
+                      type: string
+                      format: datetime
+                    updated_at:
+                      type: string
+                      format: datetime
+                  required:
+                  - id
+                  - email
+                  - name
+    post:
+      summary: Creates a user
+      tags:
+      - Users
+      description: Creates a new user in the system
+      parameters: []
+      responses:
+        '201':
+          description: user created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  name:
+                    type: string
+                  color:
+                    type: string
+                  token:
+                    type: string
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '422':
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: john@example.com
+                    name:
+                      type: string
+                      example: John Doe
+                    color:
+                      type: string
+                      example: "#FF0000"
+                    token:
+                      type: string
+                      example: auth_token_123
+                  required:
+                  - email
+                  - name
+              required:
+              - user
+  "/users/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: User ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Retrieves a user
+      tags:
+      - Users
+      description: Returns a specific user by ID
+      responses:
+        '200':
+          description: user found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  name:
+                    type: string
+                  color:
+                    type: string
+                  token:
+                    type: string
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: user not found
+    patch:
+      summary: Updates a user
+      tags:
+      - Users
+      description: Updates an existing user
+      parameters: []
+      responses:
+        '200':
+          description: user updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  name:
+                    type: string
+                  color:
+                    type: string
+                  token:
+                    type: string
+                  created_at:
+                    type: string
+                    format: datetime
+                  updated_at:
+                    type: string
+                    format: datetime
+        '404':
+          description: user not found
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    name:
+                      type: string
+                    color:
+                      type: string
+                    token:
+                      type: string
+              required:
+              - user
+servers:
+- url: http://localhost:3000
+  description: Development server
+- url: https://{defaultHost}
+  description: Production server
+  variables:
+    defaultHost:
+      default: api.mealplanning.com
