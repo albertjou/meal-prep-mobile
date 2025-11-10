@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL, HTTP_STATUS } from '@/constants/api';
 import { refreshToken } from './auth';
@@ -139,7 +139,7 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 };
 
 apiClient.interceptors.response.use(
-  (response: unknown) => response,
+  (response: AxiosResponse<unknown>) => response,
   async (error: AxiosError<unknown>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 

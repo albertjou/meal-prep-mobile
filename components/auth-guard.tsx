@@ -18,7 +18,13 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   }, [initialize]);
 
   // Check if we're on the login screen
-  const isLoginScreen = segments[0] === '(auth)' && segments.length > 1 && segments[1] === 'login';
+  // TypeScript may infer segments as a tuple [string], so we assert it as an array
+  // to safely access index 1
+  const segmentsArray = segments as string[];
+  const isLoginScreen = 
+    segmentsArray.length >= 2 && 
+    segmentsArray[0] === '(auth)' && 
+    segmentsArray[1] === 'login';
 
   // Handle navigation based on auth state
   useEffect(() => {
