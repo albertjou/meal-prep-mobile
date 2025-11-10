@@ -97,6 +97,71 @@ export const logout = async (): Promise<void> => {
 };
 
 /**
+ * Refresh token response
+ */
+export interface RefreshTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+}
+
+/**
+ * API refresh token response format
+ */
+interface ApiRefreshTokenResponse {
+  message: string;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    color?: string;
+  };
+  refresh_token: string;
+}
+
+/**
+ * Refresh access token
+ * Based on API spec: POST /auth/refresh
+ * Request: { refresh_token: string }
+ * Response: { message, user, refresh_token } with JWT in Authorization header
+ */
+export const refreshToken = async (refreshTokenValue: string): Promise<RefreshTokenResponse> => {
+  const response = await apiClient.post<ApiRefreshTokenResponse>(
+    API_ENDPOINTS.AUTH.REFRESH,
+    {
+      refresh_token: refreshTokenValue,
+    }
+  );
+
+  // Extract JWT from Authorization header
+  const authHeader =
+    (response.headers.authorization as string | undefined) ||
+    (response.headers.Authorization as string | undefined);
+  let access_token = '';
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    access_token = authHeader.substring(7);
+  } else if (authHeader) {
+    access_token = authHeader;
+  } else {
+    throw new Error('No authorization token received from server');
+  }
+
+  // Validate and parse user
+  const validatedUser = userSchema.parse(response.data.user);
+
+  // Store tokens
+  await setAccessToken(access_token);
+  await setRefreshToken(response.data.refresh_token);
+
+  return {
+    access_token,
+    refresh_token: response.data.refresh_token,
+    user: validatedUser,
+  };
+};
+
+/**
  * Get current user
  * Note: API spec doesn't have /auth/me endpoint
  * This function attempts to decode user ID from JWT token and fetch user

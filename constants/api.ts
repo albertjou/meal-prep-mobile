@@ -21,7 +21,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login', // ✅ Implemented
     LOGOUT: '/auth/logout', // ✅ Implemented
-    REFRESH: '/auth/refresh', // ❌ Not in API spec
+    REFRESH: '/auth/refresh', // ✅ Implemented
     ME: '/auth/me', // ❌ Not in API spec - no current user endpoint available
   },
   // User endpoints

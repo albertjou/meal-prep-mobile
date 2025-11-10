@@ -18,7 +18,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   }, [initialize]);
 
   // Check if we're on the login screen
-  const isLoginScreen = segments[0] === '(auth)' && segments[1] === 'login';
+  const isLoginScreen = segments[0] === '(auth)' && segments.length > 1 && segments[1] === 'login';
 
   // Handle navigation based on auth state
   useEffect(() => {
