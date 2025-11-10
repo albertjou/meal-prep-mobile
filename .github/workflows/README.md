@@ -9,7 +9,7 @@ The `ci-cd.yml` workflow runs on every push and pull request to `main`/`master` 
 Runs the following checks:
 1. **Linting** - Runs `npm run lint` using Expo's ESLint configuration
 2. **Type Checking** - Runs TypeScript compiler in check mode
-3. **Tests** - Runs Jest tests with coverage
+3. **Tests** - Currently skipped (commented out in workflow)
 
 ### Publish Job
 
@@ -75,6 +75,8 @@ Add additional steps to the `checks` job, such as:
 
 ### Tests Fail
 
+- Tests are currently skipped in the workflow
+- To re-enable tests, uncomment the test step in `ci-cd.yml`
 - Ensure all tests pass locally: `npm test`
 - Check that test environment variables are set if needed
 - Verify Jest configuration is correct
