@@ -114,13 +114,17 @@ const refreshAccessToken = async (): Promise<string | null> => {
 
 /**
  * Request interceptor: Add auth token to requests
+ * 
+ * TODO: Re-enable authentication once auth flow is implemented
+ * Authentication is currently bypassed for development
  */
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const token = await getAccessToken();
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // TODO: Re-enable authentication
+    // const token = await getAccessToken();
+    // if (token && config.headers) {
+    //   config.headers.Authorization = `Bearer ${token}`;
+    // }
     return config;
   },
   (error: AxiosError) => {
@@ -130,6 +134,9 @@ apiClient.interceptors.request.use(
 
 /**
  * Response interceptor: Handle token refresh on 401
+ * 
+ * TODO: Re-enable authentication once auth flow is implemented
+ * Authentication is currently bypassed for development
  */
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -151,52 +158,53 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    // TODO: Re-enable authentication token refresh logic
+    // const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // If error is 401 and we haven't tried to refresh yet
-    if (error.response?.status === HTTP_STATUS.UNAUTHORIZED && !originalRequest._retry) {
-      if (isRefreshing) {
-        // If already refreshing, queue this request
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            if (originalRequest.headers && token) {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-            }
-            return apiClient(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
+    // // If error is 401 and we haven't tried to refresh yet
+    // if (error.response?.status === HTTP_STATUS.UNAUTHORIZED && !originalRequest._retry) {
+    //   if (isRefreshing) {
+    //     // If already refreshing, queue this request
+    //     return new Promise((resolve, reject) => {
+    //       failedQueue.push({ resolve, reject });
+    //     })
+    //       .then((token) => {
+    //         if (originalRequest.headers && token) {
+    //           originalRequest.headers.Authorization = `Bearer ${token}`;
+    //         }
+    //         return apiClient(originalRequest);
+    //       })
+    //       .catch((err) => {
+    //         return Promise.reject(err);
+    //       });
+    //   }
 
-      originalRequest._retry = true;
-      isRefreshing = true;
+    //   originalRequest._retry = true;
+    //   isRefreshing = true;
 
-      try {
-        const newToken = await refreshAccessToken();
-        if (newToken) {
-          processQueue(null, newToken);
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          }
-          return apiClient(originalRequest);
-        } else {
-          processQueue(error, null);
-          await clearTokens();
-          // TODO: Redirect to login screen
-          return Promise.reject(error);
-        }
-      } catch (refreshError) {
-        processQueue(refreshError as AxiosError, null);
-        await clearTokens();
-        // TODO: Redirect to login screen
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
-    }
+    //   try {
+    //     const newToken = await refreshAccessToken();
+    //     if (newToken) {
+    //       processQueue(null, newToken);
+    //       if (originalRequest.headers) {
+    //         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+    //       }
+    //       return apiClient(originalRequest);
+    //     } else {
+    //       processQueue(error, null);
+    //       await clearTokens();
+    //       // TODO: Redirect to login screen
+    //       return Promise.reject(error);
+    //     }
+    //   } catch (refreshError) {
+    //     processQueue(refreshError as AxiosError, null);
+    //     await clearTokens();
+    //     // TODO: Redirect to login screen
+    //     return Promise.reject(refreshError);
+    //   } finally {
+    //     isRefreshing = false;
+    //   }
+    // }
 
     return Promise.reject(error);
   }

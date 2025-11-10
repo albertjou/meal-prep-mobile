@@ -65,9 +65,9 @@ Phase 1 foundation setup has been completed successfully. All core dependencies,
 
 **Features Implemented:**
 - ✅ Axios instance with base configuration
-- ✅ Request interceptor for automatic token injection
-- ✅ Response interceptor for token refresh on 401 errors
-- ✅ Token storage/retrieval using Expo SecureStore
+- ✅ Request interceptor (currently disabled - auth bypassed)
+- ✅ Response interceptor for token refresh (currently disabled - auth bypassed)
+- ✅ Token storage/retrieval using Expo SecureStore (ready for use)
 - ✅ Error extraction utilities
 - ✅ Type-safe API endpoint functions for all resources:
   - Users (CRUD)
@@ -76,7 +76,10 @@ Phase 1 foundation setup has been completed successfully. All core dependencies,
   - Participants (CRUD)
   - Auth (login/logout/getCurrentUser - skeleton, pending API confirmation)
 
-**Note:** Auth endpoints are placeholders and need API confirmation (as documented in CLARIFYING_QUESTIONS.md)
+**Note:** 
+- **Authentication is currently BYPASSED** for development. See `TODO_AUTHENTICATION.md` for details.
+- Auth endpoints are placeholders and need API confirmation (as documented in CLARIFYING_QUESTIONS.md)
+- All auth code is preserved and commented for easy re-enabling
 
 ### 5. Zod Schemas ✅
 
@@ -130,11 +133,15 @@ Phase 1 foundation setup has been completed successfully. All core dependencies,
 
 Phase 1 is complete. Ready to proceed with:
 
-**Phase 2: Authentication**
-- Create Zustand auth store
-- Implement auth guard
-- Create login screen
-- Handle token refresh
+**Phase 2: Core Data Models & State** (Authentication bypassed for now)
+- Create Zustand stores (meal plan, week navigation, settings)
+- Set up TanStack Query
+- Create API hooks
+
+**Authentication (Deferred):**
+- See `TODO_AUTHENTICATION.md` for complete authentication TODO list
+- Authentication is bypassed to allow development without auth endpoints
+- Can be implemented later when API endpoints are confirmed
 
 **Pending API Clarifications:**
 - Auth endpoints (login/logout/refresh)
