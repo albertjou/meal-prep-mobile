@@ -11,7 +11,8 @@ export interface LoginCredentials {
 }
 
 /**
- * Login response (to be confirmed with actual API)
+ * Login response based on API spec
+ * Note: JWT is returned in Authorization header, not response body
  */
 export interface LoginResponse {
   access_token: string;
@@ -20,36 +21,73 @@ export interface LoginResponse {
 }
 
 /**
+ * API login response format
+ */
+interface ApiLoginResponse {
+  message: string;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    color?: string;
+  };
+}
+
+/**
  * Login user
- * TODO: Update endpoint and response format once API is confirmed
+ * Based on API spec: POST /auth/login
+ * Request: { user: { email, password } }
+ * Response: { message, user } with JWT in Authorization header
  */
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
-  // TODO: Replace with actual endpoint once confirmed
-  // const response = await apiClient.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
-  // const { access_token, refresh_token, user } = response.data;
-  
-  // await setAccessToken(access_token);
-  // if (refresh_token) {
-  //   await setRefreshToken(refresh_token);
-  // }
-  
-  // const validatedUser = userSchema.parse(user);
-  // return { access_token, refresh_token, user: validatedUser };
+  const response = await apiClient.post<ApiLoginResponse>(
+    API_ENDPOINTS.AUTH.LOGIN,
+    {
+      user: {
+        email: credentials.email,
+        password: credentials.password,
+      },
+    }
+  );
 
-  // Placeholder - remove once endpoint is confirmed
-  throw new Error('Login endpoint not yet implemented - API endpoint needs to be confirmed');
+  // Extract JWT from Authorization header
+  // Axios normalizes headers to lowercase, but check both cases
+  const authHeader = response.headers.authorization || response.headers.Authorization;
+  let access_token = '';
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    access_token = authHeader.substring(7);
+  } else if (authHeader) {
+    // Some APIs return token without Bearer prefix
+    access_token = authHeader;
+  } else {
+    throw new Error('No authorization token received from server');
+  }
+
+  // Validate and parse user
+  const validatedUser = userSchema.parse(response.data.user);
+
+  // Store access token
+  await setAccessToken(access_token);
+
+  // Note: API spec doesn't show refresh_token, so we'll leave it optional
+  return {
+    access_token,
+    user: validatedUser,
+  };
 };
 
 /**
  * Logout user
- * TODO: Update endpoint once API is confirmed
+ * Based on API spec: DELETE /auth/logout
+ * Requires Authorization header with Bearer token
  */
 export const logout = async (): Promise<void> => {
   try {
-    // TODO: Call logout endpoint once confirmed
-    // await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
+    await apiClient.delete(API_ENDPOINTS.AUTH.LOGOUT);
   } catch (error) {
     console.error('Error during logout:', error);
+    // Continue with local logout even if API call fails
   } finally {
     // Always clear tokens locally
     await clearTokens();
@@ -58,13 +96,16 @@ export const logout = async (): Promise<void> => {
 
 /**
  * Get current user
- * TODO: Update endpoint once API is confirmed
+ * Note: API spec doesn't have /auth/me endpoint
+ * This function attempts to decode user ID from JWT token and fetch user
+ * For now, returns an error - this should be implemented when we have a way to get current user
  */
 export const getCurrentUser = async (): Promise<User> => {
-  // TODO: Replace with actual endpoint once confirmed
-  // const response = await apiClient.get<User>(API_ENDPOINTS.AUTH.ME);
-  // return userSchema.parse(response.data);
-
-  // Placeholder - remove once endpoint is confirmed
-  throw new Error('Get current user endpoint not yet implemented - API endpoint needs to be confirmed');
+  // Since there's no /auth/me endpoint, we'll need to either:
+  // 1. Decode JWT to get user ID and call GET /users/{id}
+  // 2. Wait for backend to add /auth/me endpoint
+  // For now, throw an error to indicate this needs implementation
+  
+  // TODO: Implement JWT decoding or use /users/{id} if we can extract user ID from token
+  throw new Error('Get current user endpoint not available - API spec does not include /auth/me');
 };

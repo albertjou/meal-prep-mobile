@@ -114,17 +114,13 @@ const refreshAccessToken = async (): Promise<string | null> => {
 
 /**
  * Request interceptor: Add auth token to requests
- * 
- * TODO: Re-enable authentication once auth flow is implemented
- * Authentication is currently bypassed for development
  */
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    // TODO: Re-enable authentication
-    // const token = await getAccessToken();
-    // if (token && config.headers) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    const token = await getAccessToken();
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error: AxiosError) => {
@@ -133,78 +129,25 @@ apiClient.interceptors.request.use(
 );
 
 /**
- * Response interceptor: Handle token refresh on 401
- * 
- * TODO: Re-enable authentication once auth flow is implemented
- * Authentication is currently bypassed for development
+ * Response interceptor: Handle 401 errors by clearing tokens
+ * Note: API spec doesn't include refresh token endpoint, so we just clear tokens on 401
  */
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (value?: unknown) => void;
-  reject: (reason?: unknown) => void;
-}> = [];
-
-const processQueue = (error: AxiosError | null, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
-
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    // TODO: Re-enable authentication token refresh logic
-    // const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // // If error is 401 and we haven't tried to refresh yet
-    // if (error.response?.status === HTTP_STATUS.UNAUTHORIZED && !originalRequest._retry) {
-    //   if (isRefreshing) {
-    //     // If already refreshing, queue this request
-    //     return new Promise((resolve, reject) => {
-    //       failedQueue.push({ resolve, reject });
-    //     })
-    //       .then((token) => {
-    //         if (originalRequest.headers && token) {
-    //           originalRequest.headers.Authorization = `Bearer ${token}`;
-    //         }
-    //         return apiClient(originalRequest);
-    //       })
-    //       .catch((err) => {
-    //         return Promise.reject(err);
-    //       });
-    //   }
-
-    //   originalRequest._retry = true;
-    //   isRefreshing = true;
-
-    //   try {
-    //     const newToken = await refreshAccessToken();
-    //     if (newToken) {
-    //       processQueue(null, newToken);
-    //       if (originalRequest.headers) {
-    //         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-    //       }
-    //       return apiClient(originalRequest);
-    //     } else {
-    //       processQueue(error, null);
-    //       await clearTokens();
-    //       // TODO: Redirect to login screen
-    //       return Promise.reject(error);
-    //     }
-    //   } catch (refreshError) {
-    //     processQueue(refreshError as AxiosError, null);
-    //     await clearTokens();
-    //     // TODO: Redirect to login screen
-    //     return Promise.reject(refreshError);
-    //   } finally {
-    //     isRefreshing = false;
-    //   }
-    // }
+    // If error is 401 (unauthorized), clear tokens
+    // The auth guard will handle redirecting to login
+    if (error.response?.status === HTTP_STATUS.UNAUTHORIZED && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      // Clear tokens - auth guard will detect this and redirect to login
+      await clearTokens();
+      
+      // Note: We don't retry the request since we don't have a refresh token endpoint
+      // The user will need to log in again
+    }
 
     return Promise.reject(error);
   }
