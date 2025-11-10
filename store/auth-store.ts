@@ -39,7 +39,11 @@ const STORAGE_KEYS = {
 /**
  * Auth store
  */
-export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
+export const useAuthStore = create<AuthState & AuthActions>(
+  (
+    set: (partial: Partial<AuthState & AuthActions> | ((state: AuthState & AuthActions) => Partial<AuthState & AuthActions>)) => void,
+    get: () => AuthState & AuthActions
+  ) => ({
   // Initial state
   user: null,
   accessToken: null,
@@ -157,11 +161,11 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     set({ user, isAuthenticated: !!user });
     if (user) {
       SecureStore.setItemAsync(STORAGE_KEYS.USER, JSON.stringify(user)).catch(
-        (error) => console.error('Error storing user:', error)
+        (error: unknown) => console.error('Error storing user:', error)
       );
     } else {
       SecureStore.deleteItemAsync(STORAGE_KEYS.USER).catch(
-        (error) => console.error('Error deleting user:', error)
+        (error: unknown) => console.error('Error deleting user:', error)
       );
     }
   },
@@ -186,7 +190,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   clearAuth: async () => {
     await clearTokens();
     await SecureStore.deleteItemAsync(STORAGE_KEYS.USER).catch(
-      (error) => console.error('Error deleting user:', error)
+      (error: unknown) => console.error('Error deleting user:', error)
     );
     set({
       user: null,

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useSegments, useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/auth-store';
 import { getAccessToken } from '@/lib/api/client';
@@ -7,7 +7,7 @@ import { getAccessToken } from '@/lib/api/client';
  * Auth guard component that protects routes based on authentication state
  * Redirects to login if not authenticated, otherwise renders children
  */
-export function AuthGuard({ children }: { children: React.ReactNode }) {
+export function AuthGuard({ children }: { children: ReactNode }) {
   const { isAuthenticated, isInitializing, initialize } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();

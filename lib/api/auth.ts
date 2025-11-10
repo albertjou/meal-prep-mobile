@@ -52,7 +52,9 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
 
   // Extract JWT from Authorization header
   // Axios normalizes headers to lowercase, but check both cases
-  const authHeader = response.headers.authorization || response.headers.Authorization;
+  const authHeader =
+    (response.headers.authorization as string | undefined) ||
+    (response.headers.Authorization as string | undefined);
   let access_token = '';
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
