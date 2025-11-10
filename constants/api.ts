@@ -11,18 +11,18 @@ import Constants from 'expo-constants';
 export const API_BASE_URL =
   Constants.expoConfig?.extra?.apiBaseUrl ||
   process.env.EXPO_PUBLIC_API_BASE_URL ||
-  'http://localhost:3000';
+  'http://localhost:3005';
 
 /**
  * API endpoints
  */
 export const API_ENDPOINTS = {
-  // Auth endpoints (to be confirmed)
+  // Auth endpoints
   AUTH: {
-    LOGIN: '/auth/login',
-    LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
-    ME: '/auth/me', // Current user endpoint (to be confirmed)
+    LOGIN: '/auth/login', // ✅ Implemented
+    LOGOUT: '/auth/logout', // ✅ Implemented
+    REFRESH: '/auth/refresh', // ✅ Implemented
+    ME: '/auth/me', // ❌ Not in API spec - no current user endpoint available
   },
   // User endpoints
   USERS: {
