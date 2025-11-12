@@ -1,39 +1,16 @@
 import { config } from '@tamagui/config/v3';
-import { createTamagui } from '@tamagui/core';
+import { createTamagui } from 'tamagui';
 
 /**
  * Tamagui configuration
  * Based on Tamagui v3 config with custom theme overrides
  */
-const appConfig = createTamagui({
-  ...config,
-  themes: {
-    ...config.themes,
-    light: {
-      ...config.themes.light,
-      // Custom theme colors can be added here
-      background: '#fff',
-      backgroundHover: '#f5f5f5',
-      color: '#11181C',
-    },
-    dark: {
-      ...config.themes.dark,
-      // Custom dark theme colors
-      background: '#151718',
-      backgroundHover: '#1f1f1f',
-      color: '#ECEDEE',
-    },
-  },
-  // Add custom tokens if needed
-  tokens: {
-    ...config.tokens,
-  },
-});
+const appConfig = createTamagui(config);
 
 export default appConfig;
 
 export type Conf = typeof appConfig;
 
-declare module '@tamagui/core' {
+declare module 'tamagui' {
   interface TamaguiCustomConfig extends Conf {}
 }

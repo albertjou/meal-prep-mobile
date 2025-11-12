@@ -1,98 +1,89 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { YStack, Button, Text, H1, Paragraph, Card } from 'tamagui';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN } from '@/lib/data/dummy-data';
+import * as Haptics from 'expo-haptics';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function LoginScreen() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { login } = useAuthStore();
 
-export default function HomeScreen() {
+  const handleAutoLogin = async () => {
+    try {
+      // Haptic feedback
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+      // Simulate login with dummy data
+      login(defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN);
+
+      // Set authenticated state to show message
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Login error:', error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <YStack
+      flex={1}
+      alignItems="center"
+      justifyContent="center"
+      padding="$4"
+      backgroundColor="$background"
+      gap="$4"
+    >
+      <Card
+        elevate
+        padding="$6"
+        borderRadius="$4"
+        backgroundColor="$backgroundStrong"
+        width="100%"
+        maxWidth={400}
+        gap="$4"
+      >
+        <YStack alignItems="center" gap="$2">
+          <H1 color="$color" fontSize="$10" fontWeight="bold">
+            Meal Prep
+          </H1>
+          <Paragraph color="$colorFocus" fontSize="$5" textAlign="center">
+            Plan your meals together
+          </Paragraph>
+        </YStack>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <YStack gap="$3" marginTop="$4" alignItems="center">
+          {!isAuthenticated ? (
+            <Button
+              size="$4"
+              theme="active"
+              onPress={handleAutoLogin}
+              backgroundColor="$blue10"
+              color="white"
+              fontWeight="600"
+              borderRadius="$4"
+              pressStyle={{ scale: 0.95, opacity: 0.8 }}
+              animation="quick"
+            >
+              <Text color="white" fontSize="$5" fontWeight="600">
+                Sign In
+              </Text>
+            </Button>
+          ) : (
+            <Text fontSize="$6" fontWeight="bold" color="$green10">
+              authenticated
+            </Text>
+          )}
+
+          <Paragraph
+            color="$colorFocus"
+            fontSize="$3"
+            textAlign="center"
+            marginTop="$2"
+          >
+            Using demo account: {defaultUser.name}
+          </Paragraph>
+        </YStack>
+      </Card>
+    </YStack>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

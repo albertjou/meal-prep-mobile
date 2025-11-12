@@ -1,6 +1,7 @@
 import { apiClient, setAccessToken, setRefreshToken, clearTokens } from './client';
 import { API_ENDPOINTS } from '@/constants/api';
 import { userSchema, type User } from '@/lib/schemas/user';
+import { defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN } from '@/lib/data/dummy-data';
 
 /**
  * Login credentials
@@ -35,9 +36,8 @@ interface ApiLoginResponse {
 
 /**
  * Login user
- * Based on API spec: POST /auth/login
- * Request: { user: { email, password } }
- * Response: { message, user } with JWT in Authorization header
+ * Uses dummy data for development
+ * TODO: Replace with actual API endpoint once available
  */
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
   const response = await apiClient.post<ApiLoginResponse>(
@@ -50,31 +50,14 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
     }
   );
 
-  // Extract JWT from Authorization header
-  // Axios normalizes headers to lowercase, but check both cases
-  const authHeader =
-    (response.headers.authorization as string | undefined) ||
-    (response.headers.Authorization as string | undefined);
-  let access_token = '';
+  // Development: Use dummy data
+  await setAccessToken(MOCK_ACCESS_TOKEN);
+  await setRefreshToken(MOCK_REFRESH_TOKEN);
   
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    access_token = authHeader.substring(7);
-  } else if (authHeader) {
-    // Some APIs return token without Bearer prefix
-    access_token = authHeader;
-  } else {
-    throw new Error('No authorization token received from server');
-  }
-
-  // Validate and parse user
-  const validatedUser = userSchema.parse(response.data.user);
-
-  // Store access token
-  await setAccessToken(access_token);
-
-  // Note: API spec doesn't show refresh_token, so we'll leave it optional
+  const validatedUser = userSchema.parse(defaultUser);
   return {
-    access_token,
+    access_token: MOCK_ACCESS_TOKEN,
+    refresh_token: MOCK_REFRESH_TOKEN,
     user: validatedUser,
   };
 };

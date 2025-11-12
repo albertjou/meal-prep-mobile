@@ -1,172 +1,87 @@
-import { useState } from 'react';
-import {
-  StyleSheet,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useAuthStore } from '@/store/auth-store';
-import { extractApiError } from '@/lib/api/client';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { useRouter } from 'expo-router';
+import { YStack, Button, Text, H1, Paragraph, Card } from 'tamagui';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN } from '@/lib/data/dummy-data';
+import * as Haptics from 'expo-haptics';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, isLoading } = useAuthStore();
-  const textColor = useThemeColor({}, 'text');
-  const buttonBackground = useThemeColor({}, 'tint');
+  const router = useRouter();
+  const { login } = useAuthStore();
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter both email and password');
-      return;
-    }
-
+  const handleAutoLogin = async () => {
     try {
-      await login({ email: email.trim(), password });
-      // Navigation will be handled by AuthGuard
+      // Haptic feedback
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+      // Simulate login with dummy data
+      login(defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN);
+
+      // Small delay for better UX
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Navigate to main app
+      router.push('/(tabs)');
     } catch (error) {
-      const apiError = extractApiError(error);
-      Alert.alert('Login Failed', apiError.message || 'An error occurred during login');
+      console.error('Login error:', error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled">
-        <ThemedView style={styles.content}>
-          <ThemedText type="title" style={styles.title}>
+    <YStack
+      flex={1}
+      alignItems="center"
+      justifyContent="center"
+      padding="$4"
+      backgroundColor="$background"
+      gap="$4"
+    >
+      <Card
+        elevate
+        padding="$6"
+        borderRadius="$4"
+        backgroundColor="$backgroundStrong"
+        width="100%"
+        maxWidth={400}
+        gap="$4"
+      >
+        <YStack alignItems="center" gap="$2">
+          <H1 color="$color" fontSize="$10" fontWeight="bold">
             Meal Prep
-          </ThemedText>
-          <ThemedText type="subtitle" style={styles.subtitle}>
-            Sign in to continue
-          </ThemedText>
+          </H1>
+          <Paragraph color="$colorFocus" fontSize="$5" textAlign="center">
+            Plan your meals together
+          </Paragraph>
+        </YStack>
 
-          <ThemedView style={styles.form}>
-            <ThemedView style={styles.inputGroup}>
-              <ThemedText type="defaultSemiBold" style={styles.label}>
-                Email
-              </ThemedText>
-              <TextInput
-                placeholder="Enter your email"
-                placeholderTextColor={textColor + '80'}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-                style={[styles.input, { color: textColor }]}
-              />
-            </ThemedView>
+        <YStack gap="$3" marginTop="$4">
+          <Button
+            size="$4"
+            theme="active"
+            onPress={handleAutoLogin}
+            backgroundColor="$blue10"
+            color="white"
+            fontWeight="600"
+            borderRadius="$4"
+            pressStyle={{ scale: 0.95, opacity: 0.8 }}
+            animation="quick"
+          >
+            <Text color="white" fontSize="$5" fontWeight="600">
+              Sign In
+            </Text>
+          </Button>
 
-            <ThemedView style={styles.inputGroup}>
-              <ThemedText type="defaultSemiBold" style={styles.label}>
-                Password
-              </ThemedText>
-              <TextInput
-                placeholder="Enter your password"
-                placeholderTextColor={textColor + '80'}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-                style={[styles.input, { color: textColor }]}
-                onSubmitEditing={handleLogin}
-              />
-            </ThemedView>
-
-            <TouchableOpacity
-              onPress={handleLogin}
-              disabled={isLoading || !email.trim() || !password.trim()}
-              style={[
-                styles.button,
-                { backgroundColor: buttonBackground },
-                (isLoading || !email.trim() || !password.trim()) && styles.buttonDisabled,
-              ]}>
-              {isLoading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <ThemedText style={styles.buttonText}>Sign In</ThemedText>
-              )}
-            </TouchableOpacity>
-          </ThemedView>
-        </ThemedView>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <Paragraph
+            color="$colorFocus"
+            fontSize="$3"
+            textAlign="center"
+            marginTop="$2"
+          >
+            Using demo account: {defaultUser.name}
+          </Paragraph>
+        </YStack>
+      </Card>
+    </YStack>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-    maxWidth: 400,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    textAlign: 'center',
-    opacity: 0.7,
-    marginBottom: 32,
-  },
-  form: {
-    marginTop: 24,
-    width: '100%',
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 44,
-  },
-  button: {
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    minHeight: 44,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
