@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { YStack, Button, Text, H1, Paragraph, Card } from 'tamagui';
+import { useRouter, Redirect } from 'expo-router';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN } from '@/lib/data/dummy-data';
 import * as Haptics from 'expo-haptics';
 
-export default function LoginScreen() {
+export default function HomeScreen() {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { login } = useAuthStore();
+  const { login, isAuthenticated: authIsAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    // Redirect to meal plans if already authenticated
+    if (authIsAuthenticated) {
+      router.replace('/(tabs)/meal-plans');
+    }
+  }, [authIsAuthenticated, router]);
 
   const handleAutoLogin = async () => {
     try {
@@ -18,11 +27,20 @@ export default function LoginScreen() {
 
       // Set authenticated state to show message
       setIsAuthenticated(true);
+      
+      // Redirect to meal plans
+      setTimeout(() => {
+        router.replace('/(tabs)/meal-plans');
+      }, 500);
     } catch (error) {
       console.error('Login error:', error);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
+
+  if (authIsAuthenticated) {
+    return <Redirect href="/(tabs)/meal-plans" />;
+  }
 
   return (
     <YStack

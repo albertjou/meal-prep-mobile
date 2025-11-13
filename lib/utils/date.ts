@@ -92,7 +92,7 @@ export const getWeekDays = (date: Date = new Date(), weekStartsOn: 0 | 1 = 1): s
   const start = getWeekStart(date, weekStartsOn);
   const days: string[] = [];
   for (let i = 0; i < 7; i++) {
-    const day = addWeeks(start, 0); // Clone the date
+    const day = new Date(start);
     day.setDate(start.getDate() + i);
     days.push(formatDateISO(day));
   }
