@@ -1,89 +1,38 @@
-import { useState } from 'react';
-import { YStack, Button, Text, H1, Paragraph, Card } from 'tamagui';
-import { useAuthStore } from '@/lib/store/auth-store';
-import { defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN } from '@/lib/data/dummy-data';
-import * as Haptics from 'expo-haptics';
+import { YStack, H2, Paragraph, XStack, Button } from 'tamagui';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
-export default function LoginScreen() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { login } = useAuthStore();
-
-  const handleAutoLogin = async () => {
-    try {
-      // Haptic feedback
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-      // Simulate login with dummy data
-      login(defaultUser, MOCK_ACCESS_TOKEN, MOCK_REFRESH_TOKEN);
-
-      // Set authenticated state to show message
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Login error:', error);
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    }
-  };
-
+export default function HomeScreen() {
   return (
-    <YStack
-      flex={1}
-      alignItems="center"
-      justifyContent="center"
-      padding="$4"
-      backgroundColor="$background"
-      gap="$4"
-    >
-      <Card
-        elevate
-        padding="$6"
-        borderRadius="$4"
-        backgroundColor="$backgroundStrong"
-        width="100%"
-        maxWidth={400}
-        gap="$4"
-      >
-        <YStack alignItems="center" gap="$2">
-          <H1 color="$color" fontSize="$10" fontWeight="bold">
-            Meal Prep
-          </H1>
-          <Paragraph color="$colorFocus" fontSize="$5" textAlign="center">
-            Plan your meals together
+    <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar style="auto" />
+      <YStack flex={1} padding="$4" gap="$4" backgroundColor="$background">
+        <YStack gap="$2">
+          <H2>Weekly Meal Grid</H2>
+          <Paragraph theme="alt2">
+            This is where the collaborative meal grid will live.
           </Paragraph>
         </YStack>
 
-        <YStack gap="$3" marginTop="$4" alignItems="center">
-          {!isAuthenticated ? (
-            <Button
-              size="$4"
-              theme="active"
-              onPress={handleAutoLogin}
-              backgroundColor="$blue10"
-              color="white"
-              fontWeight="600"
-              borderRadius="$4"
-              pressStyle={{ scale: 0.95, opacity: 0.8 }}
-              animation="quick"
-            >
-              <Text color="white" fontSize="$5" fontWeight="600">
-                Sign In
-              </Text>
-            </Button>
-          ) : (
-            <Text fontSize="$6" fontWeight="bold" color="$green10">
-              authenticated
-            </Text>
-          )}
-
-          <Paragraph
-            color="$colorFocus"
-            fontSize="$3"
-            textAlign="center"
-            marginTop="$2"
-          >
-            Using demo account: {defaultUser.name}
+        <YStack
+          flex={1}
+          backgroundColor="$backgroundStrong"
+          borderRadius="$4"
+          alignItems="center"
+          justifyContent="center"
+          borderWidth={1}
+          borderColor="$borderColor"
+        >
+          <Paragraph color="$colorFocus">
+            Grid Component Placeholder
           </Paragraph>
         </YStack>
-      </Card>
-    </YStack>
+
+        <XStack gap="$3" justifyContent="center">
+          <Button theme="active">Previous Week</Button>
+          <Button theme="active">Next Week</Button>
+        </XStack>
+      </YStack>
+    </SafeAreaView>
   );
 }

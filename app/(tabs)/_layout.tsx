@@ -24,10 +24,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="meal-plans"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Meal Plans',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="set-dummy-data"
+        options={{
+          title: 'Set Dummy Data',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="arrow.clockwise" color={color} />,
         }}
       />
     </Tabs>
