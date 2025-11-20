@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
-interface BottomNavProps {
+interface TopNavProps {
   onPrevious?: () => void;
   onNext?: () => void;
   canGoPrevious?: boolean;
@@ -12,27 +12,27 @@ interface BottomNavProps {
   currentLabel?: string;
 }
 
-export function BottomNav({
+export function TopNav({
   onPrevious,
   onNext,
   canGoPrevious = true,
   canGoNext = true,
   currentLabel,
-}: BottomNavProps) {
+}: TopNavProps) {
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
 
   return (
     <XStack
       paddingHorizontal="$4"
-      paddingTop="$3"
-      paddingBottom={insets.bottom + 12}
+      paddingTop={insets.top + 12}
+      paddingBottom="$3"
       backgroundColor="$background"
-      borderTopWidth={1}
-      borderTopColor="$borderColor"
+      borderBottomWidth={1}
+      borderBottomColor="$borderColor"
       alignItems="center"
       justifyContent="space-between"
-      minHeight={60 + insets.bottom}
+      minHeight={60 + insets.top}
     >
       <Button
         unstyled
@@ -84,3 +84,4 @@ export function BottomNav({
     </XStack>
   );
 }
+

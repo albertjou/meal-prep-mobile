@@ -1,78 +1,92 @@
 import React from 'react';
-import { Card, XStack, YStack, Text, Circle } from 'tamagui';
-import { format, parseISO } from 'date-fns';
+import { YStack, XStack, Text, Circle, Card } from 'tamagui';
 import type { Meal } from '@/lib/schemas/meal';
 import type { User } from '@/lib/schemas/user';
 
 interface MealCellProps {
-  meal: Meal;
+  meal: Meal | null;
   chef?: User;
   notEatingUsers?: User[];
-  currentUserId?: number;
+  onPress?: () => void;
 }
 
-export function MealCell({ meal, chef, notEatingUsers = [], currentUserId }: MealCellProps) {
-  const mealDate = parseISO(meal.date);
-  const dayName = format(mealDate, 'EEEE'); // e.g., "Monday"
-  const dateDisplay = format(mealDate, 'MMM d'); // e.g., "Nov 11"
+export function MealCell({ meal, chef, notEatingUsers = [], onPress }: MealCellProps) {
+  if (!meal) {
+    return (
+      <Card
+        padding="$2"
+        backgroundColor="$backgroundStrong"
+        borderRadius="$4"
+        borderWidth={1}
+        borderColor="$borderColor"
+        flex={1}
+        width="100%"
+        onPress={onPress}
+        pressStyle={{ opacity: 0.7 }}
+        animation="quick"
+      >
+        <YStack flex={1} justifyContent="center" alignItems="center">
+          <Text fontSize="$2" color="$colorFocus" opacity={0.5}>
+            Empty
+          </Text>
+        </YStack>
+      </Card>
+    );
+  }
 
   return (
     <Card
-      elevate
-      padding="$4"
-      marginBottom="$3"
+      padding="$2"
       backgroundColor="$backgroundStrong"
       borderRadius="$4"
       borderWidth={1}
       borderColor="$borderColor"
+      flex={1}
+      width="100%"
+      onPress={onPress}
+      pressStyle={{ opacity: 0.7 }}
+      animation="quick"
     >
-      <XStack alignItems="center" justifyContent="space-between" gap="$3">
-        <YStack flex={1} gap="$2">
-          <XStack alignItems="center" gap="$2">
-            <Text fontSize="$5" fontWeight="600" color="$color">
-              {dayName}
-            </Text>
-            <Text fontSize="$4" color="$colorFocus">
-              {dateDisplay}
+      <YStack flex={1} justifyContent="center" alignItems="center" gap="$1">
+        <Text 
+          fontSize="$4" 
+          fontWeight="600" 
+          color="$color" 
+          numberOfLines={2}
+          textAlign="center"
+        >
+          {meal.title}
+        </Text>
+        
+        {chef && (
+          <XStack alignItems="center" gap="$1">
+            <Circle
+              size={10}
+              backgroundColor={chef.color || '#4ECDC4'}
+            />
+            <Text fontSize="$2" color="$colorFocus" numberOfLines={1}>
+              {chef.name}
             </Text>
           </XStack>
-          
-          <Text fontSize="$6" fontWeight="700" color="$color" marginTop="$1">
-            {meal.title}
-          </Text>
+        )}
 
-          {chef && (
-            <XStack alignItems="center" gap="$2" marginTop="$2">
+        {notEatingUsers.length > 0 && (
+          <XStack alignItems="center" gap="$0.5" flexWrap="wrap">
+            {notEatingUsers.slice(0, 2).map((user) => (
               <Circle
-                size={20}
-                backgroundColor={chef.color || '#4ECDC4'}
+                key={user.id}
+                size={8}
+                backgroundColor={user.color || '#FF6B6B'}
               />
-              <Text fontSize="$4" color="$colorFocus">
-                Chef: {chef.name}
+            ))}
+            {notEatingUsers.length > 2 && (
+              <Text fontSize="$1" color="$colorFocus">
+                +{notEatingUsers.length - 2}
               </Text>
-            </XStack>
-          )}
-
-          {notEatingUsers.length > 0 && (
-            <XStack alignItems="center" gap="$2" marginTop="$2" flexWrap="wrap">
-              <Text fontSize="$3" color="$colorFocus">
-                Not eating:
-              </Text>
-              {notEatingUsers.map((user) => (
-                <XStack key={user.id} alignItems="center" gap="$1">
-                  <Circle
-                    size={16}
-                    backgroundColor={user.color || '#FF6B6B'}
-                  />
-                  <Text fontSize="$3" color="$colorFocus">
-                    {user.name}
-                  </Text>
-                </XStack>
-              ))}
-            </XStack>
-          )}
-        </YStack>
-      </XStack>
+            )}
+          </XStack>
+        )}
+      </YStack>
     </Card>
   );
 }

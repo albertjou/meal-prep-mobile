@@ -8,15 +8,25 @@ import {
   type CreateParticipantRequest,
   type UpdateParticipantRequest,
 } from '@/lib/schemas/participant';
+import { dummyParticipants } from '@/lib/data/dummy-data';
 
 /**
  * Get all meal plan participants
- * TODO: Add query parameter for filtering by meal_plan_id
+ * Uses dummy data for development
+ * TODO: Replace with actual API endpoint once available
  */
 export const getParticipants = async (meal_plan_id?: number): Promise<Participant[]> => {
-  const params = meal_plan_id ? { meal_plan_id } : undefined;
-  const response = await apiClient.get<Participant[]>(API_ENDPOINTS.PARTICIPANTS.LIST, { params });
-  return response.data.map((participant) => participantSchema.parse(participant));
+  // Development: Use dummy data
+  let participants = dummyParticipants;
+  if (meal_plan_id) {
+    participants = dummyParticipants.filter((p) => p.meal_plan_id === meal_plan_id);
+  }
+  return participants.map((participant) => participantSchema.parse(participant));
+  
+  // Production: Uncomment when API is ready
+  // const params = meal_plan_id ? { meal_plan_id } : undefined;
+  // const response = await apiClient.get<Participant[]>(API_ENDPOINTS.PARTICIPANTS.LIST, { params });
+  // return response.data.map((participant) => participantSchema.parse(participant));
 };
 
 /**

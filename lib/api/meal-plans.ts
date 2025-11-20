@@ -8,21 +8,38 @@ import {
   type CreateMealPlanRequest,
   type UpdateMealPlanRequest,
 } from '@/lib/schemas/meal-plan';
+import { dummyMealPlans } from '@/lib/data/dummy-data';
 
 /**
  * Get all meal plans
+ * Uses dummy data for development
+ * TODO: Replace with actual API endpoint once available
  */
 export const getMealPlans = async (): Promise<MealPlan[]> => {
-  const response = await apiClient.get<MealPlan[]>(API_ENDPOINTS.MEAL_PLANS.LIST);
-  return response.data.map((mealPlan) => mealPlanSchema.parse(mealPlan));
+  // Development: Use dummy data
+  return dummyMealPlans.map((mealPlan) => mealPlanSchema.parse(mealPlan));
+  
+  // Production: Uncomment when API is ready
+  // const response = await apiClient.get<MealPlan[]>(API_ENDPOINTS.MEAL_PLANS.LIST);
+  // return response.data.map((mealPlan) => mealPlanSchema.parse(mealPlan));
 };
 
 /**
  * Get meal plan by ID
+ * Uses dummy data for development
+ * TODO: Replace with actual API endpoint once available
  */
 export const getMealPlan = async (id: number): Promise<MealPlan> => {
-  const response = await apiClient.get<MealPlan>(API_ENDPOINTS.MEAL_PLANS.GET(id));
-  return mealPlanSchema.parse(response.data);
+  // Development: Use dummy data
+  const mealPlan = dummyMealPlans.find((mp) => mp.id === id);
+  if (!mealPlan) {
+    throw new Error(`Meal plan with id ${id} not found`);
+  }
+  return mealPlanSchema.parse(mealPlan);
+  
+  // Production: Uncomment when API is ready
+  // const response = await apiClient.get<MealPlan>(API_ENDPOINTS.MEAL_PLANS.GET(id));
+  // return mealPlanSchema.parse(response.data);
 };
 
 /**

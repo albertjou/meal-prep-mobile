@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Pressable } from 'react-native';
+import { ScrollView } from 'react-native';
 import { YStack, Card, Text, XStack, Spinner } from 'tamagui';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -24,7 +24,7 @@ export default function MealPlansIndexScreen() {
   // Fetch all participants
   const { data: participants, isLoading: participantsLoading } = useQuery({
     queryKey: ['participants'],
-    queryFn: getParticipants,
+    queryFn: () => getParticipants(),
   });
 
   useEffect(() => {
@@ -48,7 +48,41 @@ export default function MealPlansIndexScreen() {
   }, [user, mealPlans, participants]);
 
   const handleMealPlanPress = (mealPlanId: number) => {
-    router.push(`/(tabs)/meal-plans/${mealPlanId}`);
+    console.log('[MealPlansIndex] handleMealPlanPress called:', {
+      mealPlanId,
+      routerReady: !!router,
+      routerType: typeof router,
+    });
+    
+    // Try multiple route formats to see which works
+    const routes = [
+      `/(tabs)/meal-plans/${mealPlanId}`,
+      `/meal-plans/${mealPlanId}`,
+      `meal-plans/${mealPlanId}`,
+    ];
+    
+    const primaryRoute = routes[0];
+    console.log('[MealPlansIndex] Attempting navigation to:', primaryRoute);
+    
+    try {
+      // Try using router.push with the full path
+      router.push(primaryRoute as any);
+      console.log('[MealPlansIndex] router.push called successfully');
+      
+      // Also try using href format as fallback
+      setTimeout(() => {
+        console.log('[MealPlansIndex] Checking if navigation succeeded...');
+      }, 100);
+    } catch (error) {
+      console.error('[MealPlansIndex] Navigation error:', error);
+      // Try alternative route format
+      try {
+        console.log('[MealPlansIndex] Trying alternative route format...');
+        router.push(routes[1] as any);
+      } catch (error2) {
+        console.error('[MealPlansIndex] Alternative route also failed:', error2);
+      }
+    }
   };
 
   const formatDateRange = (startDate: string, endDate: string) => {
@@ -89,42 +123,42 @@ export default function MealPlansIndexScreen() {
             </Card>
           ) : (
             accessibleMealPlans.map((mealPlan) => (
-              <Pressable
+              <Card
                 key={mealPlan.id}
-                onPress={() => handleMealPlanPress(mealPlan.id)}
+                elevate
+                padding="$4"
+                backgroundColor="$backgroundStrong"
+                borderRadius="$4"
+                borderWidth={1}
+                borderColor="$borderColor"
+                pressStyle={{ scale: 0.98, opacity: 0.9 }}
+                animation="quick"
+                onPress={() => {
+                  console.log('[MealPlansIndex] Card onPress triggered for mealPlan:', mealPlan.id);
+                  handleMealPlanPress(mealPlan.id);
+                }}
               >
-                <Card
-                  elevate
-                  padding="$4"
-                  backgroundColor="$backgroundStrong"
-                  borderRadius="$4"
-                  borderWidth={1}
-                  borderColor="$borderColor"
-                  pressStyle={{ scale: 0.98, opacity: 0.9 }}
-                  animation="quick"
-                >
-                  <YStack gap="$2">
-                    <Text fontSize="$7" fontWeight="700" color="$color">
-                      {mealPlan.title}
+                <YStack gap="$2">
+                  <Text fontSize="$7" fontWeight="700" color="$color">
+                    {mealPlan.title}
+                  </Text>
+                  {mealPlan.description && (
+                    <Text fontSize="$4" color="$colorFocus">
+                      {mealPlan.description}
                     </Text>
-                    {mealPlan.description && (
-                      <Text fontSize="$4" color="$colorFocus">
-                        {mealPlan.description}
+                  )}
+                  <XStack alignItems="center" gap="$2" marginTop="$2">
+                    <Text fontSize="$3" color="$colorFocus">
+                      {formatDateRange(mealPlan.start_date, mealPlan.end_date)}
+                    </Text>
+                    {mealPlan.owner_id === user?.id && (
+                      <Text fontSize="$3" color="$blue10" fontWeight="500">
+                        • Owner
                       </Text>
                     )}
-                    <XStack alignItems="center" gap="$2" marginTop="$2">
-                      <Text fontSize="$3" color="$colorFocus">
-                        {formatDateRange(mealPlan.start_date, mealPlan.end_date)}
-                      </Text>
-                      {mealPlan.owner_id === user?.id && (
-                        <Text fontSize="$3" color="$blue10" fontWeight="500">
-                          • Owner
-                        </Text>
-                      )}
-                    </XStack>
-                  </YStack>
-                </Card>
-              </Pressable>
+                  </XStack>
+                </YStack>
+              </Card>
             ))
           )}
         </YStack>
